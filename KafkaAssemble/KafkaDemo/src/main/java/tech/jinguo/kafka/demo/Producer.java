@@ -1,6 +1,6 @@
 /*
- * Copyright: 2021 www.chebada.com Inc. All rights reserved.
- * 注意：本内容仅限于车巴达公司内部传阅，禁止外泄以及用于其他的商业目的
+ * Copyright: 2021 jinguo.tech All rights reserved.
+ * 注意：本内容仅限于jinguo.tech内部传阅，禁止外泄以及用于其他的商业目的
  *
  * @Project: kafka
  * @File: Producer
