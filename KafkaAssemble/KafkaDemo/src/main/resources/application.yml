@@ -1,0 +1,19 @@
+server:
+  port: 8086
+
+spring:
+  kafka:
+    # kafka服务地址
+    bootstrap-servers: localhost:9092
+    producer:
+      # 生产者消息key序列化方式
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      # 生产者消息value序列化方式
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      # 消费者组
+      group-id: test-consumer-group
+      # 消费者消息value反序列化方式
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      # 消费者消息value反序列化方式
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
