@@ -17,6 +17,7 @@
         <module>KafkaDemo</module>
         <module>KafkaStreamsDemo</module>
         <module>KafkaDemo2</module>
+        <module>KafkaStreamsBoot</module>
     </modules>
 
     <properties>

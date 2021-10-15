@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>KafkaStreamsDemo</artifactId>
+    <artifactId>KafkaStreamsBoot</artifactId>
     <properties>
         <kafka-streams.version>2.6.0</kafka-streams.version>
     </properties>
