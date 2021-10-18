@@ -1,5 +1,5 @@
 server:
-  port: 8090
+  port: 8088
 
 spring:
   kafka:
@@ -22,3 +22,17 @@ spring:
     streams:
       application-id: kafka-streams-boot # 默认取springboot应用名
       bootstrap-servers: ${KAFKA_HOST:localhost}:${KAFKA_PORT:9092} # 会覆盖 spring.kafka.bootstrap-servers 配置
+      #      auto-startup: true
+      properties:
+        default:
+          key:
+            serde: org.apache.kafka.common.serialization.Serdes$StringSerde # 序列化key
+          value:
+            serde: org.apache.kafka.common.serialization.Serdes$StringSerde # 序列化value
+            #serde: org.springframework.kafka.support.serializer.JsonSerde # 序列化value
+          timestamp:
+            extractor: org.apache.kafka.streams.processor.WallclockTimestampExtractor
+        spring:
+          json:
+            trusted:
+              packages: com.engrz.lab.* # 允许json反序列化的包
