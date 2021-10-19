@@ -116,13 +116,20 @@ public class KafkaStreamsZmartConfig {
         return kstreamByDept;
     }
 
-
     @Bean
     public KStream<String, Purchase> kStream4ForEachPurchase() {
         // security Requirements to record transactions for certain employee
         ForeachAction<String, Purchase> purchaseForeachAction = (key, purchase) ->
                 SecurityDBService.saveRecord(purchase.getPurchaseDate(), purchase.getEmployeeId(), purchase.getItemPurchased());
         purchaseKStream.filter((key, purchase) -> purchase.getEmployeeId().equals("000000")).foreach(purchaseForeachAction);
+        return purchaseKStream;
+    }
+
+    @Bean
+    public KStream<String, Purchase> kStream4PeekPurchase() {
+        ForeachAction<String, Purchase> purchaseForeachAction = (key, purchase) ->
+                SecurityDBService.saveRecord(purchase.getPurchaseDate(), purchase.getEmployeeId(), purchase.getItemPurchased());
+        purchaseKStream.filter((key, purchase) -> purchase.getEmployeeId().equals("000000")).peek(purchaseForeachAction);
         return purchaseKStream;
     }
 }
