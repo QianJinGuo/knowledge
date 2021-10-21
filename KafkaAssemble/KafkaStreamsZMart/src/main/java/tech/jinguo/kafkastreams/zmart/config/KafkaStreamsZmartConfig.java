@@ -151,6 +151,12 @@ public class KafkaStreamsZmartConfig {
         //转换器类
         KeyValueBytesStoreSupplier storeSupplier = Stores.inMemoryKeyValueStore(rewardsStateStoreName);
         StoreBuilder<KeyValueStore<String, Integer>> storeBuilder = Stores.keyValueStoreBuilder(storeSupplier, Serdes.String(), Serdes.Integer());
+        Map<String, String> changeLogConfigs = new HashMap<>(16);
+        //日志主题配置为保留数据大小为10GB,保留时间为2天,清理策略为删除和压缩
+        changeLogConfigs.put("retention.ms", "17280000");
+        changeLogConfigs.put("retention.bytes", "10000000000");
+        changeLogConfigs.put("cleanup.policy","compact,delete");
+        storeBuilder.withLoggingEnabled(changeLogConfigs);
         builder.addStateStore(storeBuilder);
         //使用KStream.through()方法实现重新分区,当前的KStream实例开始将记录写入这个主题中。
         // 调用through()方法返回一个新KStream实例，该实例使用同一个中间主题作为其数据源。通过这种方式，数据就可以被无缝地重新分区。
