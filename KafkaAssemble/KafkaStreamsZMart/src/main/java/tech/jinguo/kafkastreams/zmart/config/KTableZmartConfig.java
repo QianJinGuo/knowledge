@@ -37,8 +37,8 @@ import java.util.Map;
  * @description: 流和表
  * @date 2021/10/21 13:43
  */
-@Configuration
-@EnableKafkaStreams
+//@Configuration
+//@EnableKafkaStreams
 public class KTableZmartConfig {
     public KTableZmartConfig() {
         int numberCompanies = 3;
@@ -69,6 +69,11 @@ public class KTableZmartConfig {
         return new KafkaStreamsConfiguration(props);
     }
 
+    /**
+     * 流和表对比
+     * @param builder
+     * @return
+     */
     @Bean
     public KTable<String, StockTickerData> kStreamVSKTable(StreamsBuilder builder) {
         KTable<String, StockTickerData> stockTickerTable = builder.table(MockDataProducer.STOCK_TICKER_TABLE_TOPIC,Materialized.as("stock"));
@@ -77,7 +82,5 @@ public class KTableZmartConfig {
         stockTickerStream.print(Printed.<String, StockTickerData>toSysOut().withLabel("Stocks-KStream"));
         return stockTickerTable;
     }
-
-
 }
     
