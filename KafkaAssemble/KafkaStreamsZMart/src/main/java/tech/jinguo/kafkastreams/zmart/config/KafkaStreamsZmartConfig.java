@@ -11,6 +11,7 @@ package tech.jinguo.kafkastreams.zmart.config;/*
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.kstream.*;
@@ -25,11 +26,14 @@ import org.springframework.kafka.annotation.EnableKafkaStreams;
 import org.springframework.kafka.annotation.KafkaStreamsDefaultConfiguration;
 import org.springframework.kafka.config.KafkaStreamsConfiguration;
 import tech.jinguo.kafkastreams.zmart.clients.MockDataProducer;
+import tech.jinguo.kafkastreams.zmart.joiner.PurchaseJoiner;
+import tech.jinguo.kafkastreams.zmart.model.CorrelatedPurchase;
 import tech.jinguo.kafkastreams.zmart.model.Purchase;
 import tech.jinguo.kafkastreams.zmart.model.PurchasePattern;
 import tech.jinguo.kafkastreams.zmart.model.RewardAccumulator;
 import tech.jinguo.kafkastreams.zmart.partitioner.RewardsStreamPartitioner;
 import tech.jinguo.kafkastreams.zmart.service.SecurityDBService;
+import tech.jinguo.kafkastreams.zmart.timestamp_extractor.TransactionTimestampExtractor;
 import tech.jinguo.kafkastreams.zmart.transformer.PurchaseRewardTransformer;
 import tech.jinguo.kafkastreams.zmart.util.serde.StreamsSerdes;
 
@@ -61,11 +65,12 @@ public class KafkaStreamsZmartConfig {
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
         props.put(StreamsConfig.REPLICATION_FACTOR_CONFIG, 1);
-        props.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, WallclockTimestampExtractor.class);
+        //props.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, WallclockTimestampExtractor.class);
+        props.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, TransactionTimestampExtractor.class);
         return new KafkaStreamsConfiguration(props);
     }
 
-    @Bean
+    //@Bean
     public KStream<String, Purchase> kStream4Purchase(StreamsBuilder builder) {
         Serde<String> stringSerde = Serdes.String();
         Serde<Purchase> purchaseSerde = StreamsSerdes.PurchaseSerde();
@@ -84,7 +89,7 @@ public class KafkaStreamsZmartConfig {
         return patternKStream;
     }
 
-    @Bean
+    //@Bean
     public KStream<String, RewardAccumulator> kStream4Rewards() {
         Serde<String> stringSerde = Serdes.String();
         Serde<RewardAccumulator> rewardAccumulatorSerde = StreamsSerdes.RewardAccumulatorSerde();
@@ -94,16 +99,17 @@ public class KafkaStreamsZmartConfig {
         return rewardsKStream;
     }
 
-    @Bean
+    //@Bean
     public KStream<Long, Purchase> kStream4FilterPurchase() {
         KeyValueMapper<String, Purchase, Long> purchaseDateAsKey = (key, purchase) -> purchase.getPurchaseDate().getTime();
+        //键选择器selectKey,map,transform方法在执行join,reduce或者聚合操作时会重新分区
         KStream<Long, Purchase> filteredKStream = purchaseKStream.filter((key, purchase) -> purchase.getPrice() > 5.00).selectKey(purchaseDateAsKey);
         //filteredKStream.print(Printed.<Long, Purchase>toSysOut().withLabel("purchases"));
         filteredKStream.to("purchases", Produced.with(Serdes.Long(), StreamsSerdes.PurchaseSerde()));
         return filteredKStream;
     }
 
-    @Bean
+    //@Bean
     public KStream<String, Purchase>[] kStream4BranchPurchase() {
         Serde<String> stringSerde = Serdes.String();
         Serde<Purchase> purchaseSerde = StreamsSerdes.PurchaseSerde();
@@ -122,7 +128,7 @@ public class KafkaStreamsZmartConfig {
         return kstreamByDept;
     }
 
-    @Bean
+    //@Bean
     public KStream<String, Purchase> kStream4ForEachPurchase() {
         // security Requirements to record transactions for certain employee
         ForeachAction<String, Purchase> purchaseForeachAction = (key, purchase) ->
@@ -131,7 +137,7 @@ public class KafkaStreamsZmartConfig {
         return purchaseKStream;
     }
 
-    @Bean
+    //@Bean
     public KStream<String, Purchase> kStream4PeekPurchase() {
         ForeachAction<String, Purchase> purchaseForeachAction = (key, purchase) ->
                 SecurityDBService.saveRecord(purchase.getPurchaseDate(), purchase.getEmployeeId(), purchase.getItemPurchased());
@@ -139,7 +145,7 @@ public class KafkaStreamsZmartConfig {
         return purchaseKStream;
     }
 
-    @Bean
+    //@Bean
     public KStream<String, RewardAccumulator> kStream4RewardsStateStore(StreamsBuilder builder) {
         Serde<RewardAccumulator> rewardAccumulatorSerde = StreamsSerdes.RewardAccumulatorSerde();
         Serde<Purchase> purchaseSerde = StreamsSerdes.PurchaseSerde();
@@ -155,7 +161,7 @@ public class KafkaStreamsZmartConfig {
         //日志主题配置为保留数据大小为10GB,保留时间为2天,清理策略为删除和压缩
         changeLogConfigs.put("retention.ms", "17280000");
         changeLogConfigs.put("retention.bytes", "10000000000");
-        changeLogConfigs.put("cleanup.policy","compact,delete");
+        changeLogConfigs.put("cleanup.policy", "compact,delete");
         storeBuilder.withLoggingEnabled(changeLogConfigs);
         builder.addStateStore(storeBuilder);
         //使用KStream.through()方法实现重新分区,当前的KStream实例开始将记录写入这个主题中。
@@ -170,5 +176,41 @@ public class KafkaStreamsZmartConfig {
         statefulRewardAccumulator.to("rewards", Produced.with(stringSerde, rewardAccumulatorSerde));
         return statefulRewardAccumulator;
     }
+
+    @Bean
+    public KStream<String, CorrelatedPurchase> kStream4JoinPurchase(StreamsBuilder builder) {
+        Serde<String> stringSerde = Serdes.String();
+        Serde<Purchase> purchaseSerde = StreamsSerdes.PurchaseSerde();
+        KeyValueMapper<String, Purchase, KeyValue<String, Purchase>> custIdCCMasking = (k, v) -> {
+            Purchase masked = Purchase.builder(v).maskCreditCard().build();
+            return new KeyValue<>(masked.getCustomerId(), masked);
+        };
+
+        Predicate<String, Purchase> coffeePurchase = (key, purchase) -> purchase.getDepartment().equalsIgnoreCase("coffee");
+        Predicate<String, Purchase> electronicPurchase = (key, purchase) -> purchase.getDepartment().equalsIgnoreCase("electronics");
+
+        KStream<String, Purchase> transactionStream = builder.stream("transactions", Consumed.with(Serdes.String(), purchaseSerde)).map(custIdCCMasking);
+        KStream<String, Purchase>[] branchesStream = transactionStream.selectKey((k, v) -> v.getCustomerId()).branch(coffeePurchase, electronicPurchase);
+        int COFFEE_PURCHASE = 0;
+        int ELECTRONICS_PURCHASE = 1;
+        KStream<String, Purchase> coffeeStream = branchesStream[COFFEE_PURCHASE];
+        KStream<String, Purchase> electronicsStream = branchesStream[ELECTRONICS_PURCHASE];
+        ValueJoiner<Purchase, Purchase, CorrelatedPurchase> purchaseJoiner = new PurchaseJoiner();
+        //指定连接的两个值之间的最大时间差
+        JoinWindows twentyMinuteWindow = JoinWindows.of(60 * 1000 * 20);
+        //join方法，触发重新分区
+        KStream<String, CorrelatedPurchase> joinedKStream = coffeeStream.join(electronicsStream,
+                purchaseJoiner,
+                twentyMinuteWindow,
+                Joined.with(stringSerde,
+                        purchaseSerde,
+                        purchaseSerde));
+
+        joinedKStream.print(Printed.<String, CorrelatedPurchase>toSysOut().withLabel("joined KStream"));
+        return joinedKStream;
+
+
+    }
+
 }
     
