@@ -47,12 +47,12 @@ import java.util.Map;
  * @description: 装配Kafka stream
  * @date 2021/10/15 15:20
  */
-@Configuration
-@EnableKafkaStreams
-public class KafkaStreamsZmartConfig {
+//@Configuration
+//@EnableKafkaStreams
+public class KStreamsZmartConfig {
     private KStream<String, Purchase> purchaseKStream;
 
-    public KafkaStreamsZmartConfig() {
+    public KStreamsZmartConfig() {
         MockDataProducer.producePurchaseData();
     }
 
@@ -70,7 +70,7 @@ public class KafkaStreamsZmartConfig {
         return new KafkaStreamsConfiguration(props);
     }
 
-    //@Bean
+    @Bean
     public KStream<String, Purchase> kStream4Purchase(StreamsBuilder builder) {
         Serde<String> stringSerde = Serdes.String();
         Serde<Purchase> purchaseSerde = StreamsSerdes.PurchaseSerde();
@@ -79,7 +79,7 @@ public class KafkaStreamsZmartConfig {
         return purchaseKStream;
     }
 
-    //@Bean
+    @Bean
     public KStream<String, PurchasePattern> kStream4Pattern() {
         Serde<String> stringSerde = Serdes.String();
         Serde<PurchasePattern> purchasePatternSerde = StreamsSerdes.PurchasePatternSerde();
@@ -99,7 +99,7 @@ public class KafkaStreamsZmartConfig {
         return rewardsKStream;
     }
 
-    //@Bean
+    @Bean
     public KStream<Long, Purchase> kStream4FilterPurchase() {
         KeyValueMapper<String, Purchase, Long> purchaseDateAsKey = (key, purchase) -> purchase.getPurchaseDate().getTime();
         //键选择器selectKey,map,transform方法在执行join,reduce或者聚合操作时会重新分区
@@ -109,7 +109,7 @@ public class KafkaStreamsZmartConfig {
         return filteredKStream;
     }
 
-    //@Bean
+    @Bean
     public KStream<String, Purchase>[] kStream4BranchPurchase() {
         Serde<String> stringSerde = Serdes.String();
         Serde<Purchase> purchaseSerde = StreamsSerdes.PurchaseSerde();
@@ -128,7 +128,7 @@ public class KafkaStreamsZmartConfig {
         return kstreamByDept;
     }
 
-    //@Bean
+    @Bean
     public KStream<String, Purchase> kStream4ForEachPurchase() {
         // security Requirements to record transactions for certain employee
         ForeachAction<String, Purchase> purchaseForeachAction = (key, purchase) ->
@@ -137,7 +137,7 @@ public class KafkaStreamsZmartConfig {
         return purchaseKStream;
     }
 
-    //@Bean
+    @Bean
     public KStream<String, Purchase> kStream4PeekPurchase() {
         ForeachAction<String, Purchase> purchaseForeachAction = (key, purchase) ->
                 SecurityDBService.saveRecord(purchase.getPurchaseDate(), purchase.getEmployeeId(), purchase.getItemPurchased());
@@ -145,7 +145,7 @@ public class KafkaStreamsZmartConfig {
         return purchaseKStream;
     }
 
-    //@Bean
+    @Bean
     public KStream<String, RewardAccumulator> kStream4RewardsStateStore(StreamsBuilder builder) {
         Serde<RewardAccumulator> rewardAccumulatorSerde = StreamsSerdes.RewardAccumulatorSerde();
         Serde<Purchase> purchaseSerde = StreamsSerdes.PurchaseSerde();
@@ -208,8 +208,6 @@ public class KafkaStreamsZmartConfig {
 
         joinedKStream.print(Printed.<String, CorrelatedPurchase>toSysOut().withLabel("joined KStream"));
         return joinedKStream;
-
-
     }
 
 }

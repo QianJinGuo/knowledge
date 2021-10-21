@@ -9,7 +9,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 连接购买记录
+ * 连接器
+ * @author jinguo.qian
  */
 public class PurchaseJoiner implements ValueJoiner<Purchase, Purchase, CorrelatedPurchase> {
 
