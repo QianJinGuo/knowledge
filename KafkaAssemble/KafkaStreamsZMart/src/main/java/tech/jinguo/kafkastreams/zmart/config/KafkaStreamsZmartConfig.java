@@ -15,6 +15,10 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.processor.WallclockTimestampExtractor;
+import org.apache.kafka.streams.state.KeyValueBytesStoreSupplier;
+import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.StoreBuilder;
+import org.apache.kafka.streams.state.Stores;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafkaStreams;
@@ -24,7 +28,9 @@ import tech.jinguo.kafkastreams.zmart.clients.MockDataProducer;
 import tech.jinguo.kafkastreams.zmart.model.Purchase;
 import tech.jinguo.kafkastreams.zmart.model.PurchasePattern;
 import tech.jinguo.kafkastreams.zmart.model.RewardAccumulator;
+import tech.jinguo.kafkastreams.zmart.partitioner.RewardsStreamPartitioner;
 import tech.jinguo.kafkastreams.zmart.service.SecurityDBService;
+import tech.jinguo.kafkastreams.zmart.transformer.PurchaseRewardTransformer;
 import tech.jinguo.kafkastreams.zmart.util.serde.StreamsSerdes;
 
 import java.util.HashMap;
@@ -68,7 +74,7 @@ public class KafkaStreamsZmartConfig {
         return purchaseKStream;
     }
 
-    @Bean
+    //@Bean
     public KStream<String, PurchasePattern> kStream4Pattern() {
         Serde<String> stringSerde = Serdes.String();
         Serde<PurchasePattern> purchasePatternSerde = StreamsSerdes.PurchasePatternSerde();
@@ -131,6 +137,32 @@ public class KafkaStreamsZmartConfig {
                 SecurityDBService.saveRecord(purchase.getPurchaseDate(), purchase.getEmployeeId(), purchase.getItemPurchased());
         purchaseKStream.filter((key, purchase) -> purchase.getEmployeeId().equals("000000")).peek(purchaseForeachAction);
         return purchaseKStream;
+    }
+
+    @Bean
+    public KStream<String, RewardAccumulator> kStream4RewardsStateStore(StreamsBuilder builder) {
+        Serde<RewardAccumulator> rewardAccumulatorSerde = StreamsSerdes.RewardAccumulatorSerde();
+        Serde<Purchase> purchaseSerde = StreamsSerdes.PurchaseSerde();
+        Serde<String> stringSerde = Serdes.String();
+        // adding State to processor
+        String rewardsStateStoreName = "rewardsPointsStore";
+        //分区策略
+        RewardsStreamPartitioner streamPartitioner = new RewardsStreamPartitioner();
+        //转换器类
+        KeyValueBytesStoreSupplier storeSupplier = Stores.inMemoryKeyValueStore(rewardsStateStoreName);
+        StoreBuilder<KeyValueStore<String, Integer>> storeBuilder = Stores.keyValueStoreBuilder(storeSupplier, Serdes.String(), Serdes.Integer());
+        builder.addStateStore(storeBuilder);
+        //使用KStream.through()方法实现重新分区,当前的KStream实例开始将记录写入这个主题中。
+        // 调用through()方法返回一个新KStream实例，该实例使用同一个中间主题作为其数据源。通过这种方式，数据就可以被无缝地重新分区。
+        //topic需要预先创建，bin\windows\kafka-topics.bat --create --zookeeper localhost:2181,localhost:2182,localhost:2183 --replication-factor 1 --partitions 1 --topic customerTransactions
+        KStream<String, Purchase> transByCustomerStream = purchaseKStream.through("customerTransactions", Produced.with(stringSerde, purchaseSerde, streamPartitioner));
+        transByCustomerStream.print(Printed.<String, Purchase>toSysOut().withLabel("transByCustomerStream"));
+        //值转换器，和mapValues区别是 ，这两种方法操作方式相同，即仍然是将Purchase对象映射为RewardAccumulator对象。不同之处在于使用本地状态来执行转换的能力。
+        KStream<String, RewardAccumulator> statefulRewardAccumulator = transByCustomerStream.transformValues(() -> new PurchaseRewardTransformer(rewardsStateStoreName),
+                rewardsStateStoreName);
+        statefulRewardAccumulator.print(Printed.<String, RewardAccumulator>toSysOut().withLabel("rewards"));
+        statefulRewardAccumulator.to("rewards", Produced.with(stringSerde, rewardAccumulatorSerde));
+        return statefulRewardAccumulator;
     }
 }
     
