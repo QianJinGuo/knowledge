@@ -1,0 +1,7 @@
+rocketmq:
+  nameserv: 127.0.0.1:9876
+  topic: rocketmq_demo
+  producer:
+    group: rocketmq_demo_producer
+  consumer:
+    group: rocketmq_demo_consumer
