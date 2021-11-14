@@ -16,8 +16,12 @@ public class SecondServlet extends HttpServlet {
 //        PrintWriter printWriter = response.getWriter();
 //        printWriter.write(request.getAttribute("attrName").toString());
 //        printWriter.close();
+
+       // RequestDispatcher dispatcher = request.getRequestDispatcher("success.html");
+       // dispatcher.forward(request, response);//发起转发
+
         //注意路径问题，加上/会失败，会以主机地址为起始，重定向一般需要加上项目名
-        response.sendRedirect("success.html");
+        response.sendRedirect(request.getContextPath() + "/success.html");
     }
 
     @Override
