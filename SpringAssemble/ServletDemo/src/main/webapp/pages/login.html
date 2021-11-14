@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>form空白</title>
+    <base href="http://localhost:8030/ServletDemo/">
+</head>
+<body>
+
+<h2>登录页面-用户名&密码&提交</h2>
+<form action="LoginServlet" method="post">
+    用户名：<input id="username" type="text" name="username" placeholder="请输入用户名" value=""/><br>
+    密码：<input id="pwd" type="password" name="password" value=""/><br>
+    <input id="btnSub" type="submit" value="登录">
+</form>
+<br>
+<a href="index.html">回首页</a><br>
+<a id="aEle" href="pages/login.html">删除信息</a>
+</body>
+<script type="text/javascript">
+
+    /*
+        实现非空验证
+     */
+    const btnSubEle = document.getElementById("btnSub");
+    btnSubEle.onclick = function () {
+        const unValue = document.getElementById("username").value;
+        if (unValue === "") {
+            alert("用户名不能为空请重新输入！");
+            //取消默认行为
+            return false;
+        }
+        //验证密码是否为空
+        const pwdValue = document.getElementById("pwd").value;
+        if (pwdValue === "") {
+            alert("密码不能为空，请重新输入！");
+            //取消默认行为
+            return false;
+        }
+
+    }
+
+    //超链接js案例
+    const aEle = document.getElementById("aEle");
+    aEle.onclick = function () {
+        const yOn = confirm("是否删除当前信息？");
+        if (yOn == false) {
+            //不删除【取消超链接默认行为】
+            return false;
+        }
+    }
+
+</script>
+</html>
