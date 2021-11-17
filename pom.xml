@@ -14,5 +14,6 @@
         <module>rocketmq-console</module>
         <module>RocketmqAssemble</module>
         <module>SpringAssemble</module>
+        <module>RPCAssemble</module>
     </modules>
 </project>
