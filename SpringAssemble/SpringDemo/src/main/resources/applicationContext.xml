@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--配置bean
+    id属性：设置bean的唯一标识
+    class属性：设置类的全类名，IOC容器通过反射创建对象
+    -->
+    <bean id="helloWorld" class="tech.jinguo.springdemo.bean.HelloWorld">
+        <!--设置属性值 根据setXXX的属性名xXX赋值-->
+        <property name="name" value="world"/>
+    </bean>
+
+    <bean id="helloWorld2" class="tech.jinguo.springdemo.bean.HelloWorld">
+        <constructor-arg name="name" value="world"/>
+    </bean>
+</beans>

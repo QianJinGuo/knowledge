@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+    <bean id="book" class="tech.jinguo.springdemo.bean.Book">
+        <property name="id" value="1"/>
+        <property name="author" value="jinguo"/>
+        <property name="price">
+            <value>5.20</value>
+        </property>
+        <property name="title" value="spring assemble"/>
+        <property name="sales" value="3"/>
+    </bean>
+    <bean id="book2" class="tech.jinguo.springdemo.bean.Book">
+        <constructor-arg name="id" value="2"/>
+        <constructor-arg value="spring assemble2"/>
+        <constructor-arg value="jinguo"/>
+        <constructor-arg value="13.14"/>
+        <constructor-arg value="6"/>
+    </bean>
+    <bean id="book3" class="tech.jinguo.springdemo.bean.Book">
+        <!--name指定属性名 value指定属性值 type指定属性类型 index指定属性在构造器中的索引位置-->
+        <constructor-arg name="id" value="3"/>
+        <constructor-arg value="spring assemble3"/>
+        <constructor-arg value="jinguo"/>
+        <!--        <constructor-arg name="price" value="19"/>-->
+        <!--        <constructor-arg type="java.lang.Double" value="19"/>-->
+        <constructor-arg index="3" value="19"/>
+    </bean>
+    <bean id="book4" class="tech.jinguo.springdemo.bean.Book">
+        <constructor-arg name="id" value="3"/>
+        <constructor-arg>
+            <!--使用CDATA区设置特殊字符-->
+            <value><![CDATA[<<SpringAssemble>>]]></value>
+        </constructor-arg>
+        <constructor-arg>
+            <!--设置null值-->
+            <null/>
+        </constructor-arg>
+        <constructor-arg index="3" value="19"/>
+    </bean>
+    <bean id="book5" class="tech.jinguo.springdemo.bean.Book" p:id="3" p:author="jinguo" p:price="6.0" p:sales="8"
+          p:title="SpringAssemble">
+    </bean>
+    <bean id="cartItem" class="tech.jinguo.springdemo.bean.CartItem">
+        <!--可通过ref属性或ref子标签来引用外部bean ref的值是IOC容器其他bean的id值-->
+        <property name="book" ref="book"/>
+        <!--  <property name="book">
+                  <ref bean="book5"/>
+              </property>-->
+        <property name="count" value="18"/>
+        <property name="amount" value="20"/>
+    </bean>
+    <bean id="cartItem2" class="tech.jinguo.springdemo.bean.CartItem">
+        <property name="book">
+            <!--内部Bean不能被其他bean引用 可不指定id值  id attribute is superfluous-->
+            <bean class="tech.jinguo.springdemo.bean.Book">
+                <property name="id" value="3"/>
+                <property name="title" value="SpringAssemble"/>
+                <property name="sales" value="30"/>
+                <property name="price" value="8.88"/>
+                <property name="author" value="jinguo"/>
+            </bean>
+        </property>
+        <property name="amount" value="288"/>
+        <property name="count" value="32"/>
+    </bean>
+    <bean id="cartItem3" class="tech.jinguo.springdemo.bean.CartItem">
+        <property name="book" ref="book5"/>
+        <!--给级联属性赋值，即给属性的属性赋值-->
+        <property name="book.id" value="6"/>
+        <property name="book.author" value="felix"/>
+        <property name="amount" value="288"/>
+        <property name="count" value="32"/>
+    </bean>
+    <bean id="bookShop" class="tech.jinguo.springdemo.bean.BookShop">
+        <property name="books">
+            <list>
+                <bean class="tech.jinguo.springdemo.bean.Book">
+                    <property name="id" value="6"/>
+                    <property name="author" value="jinguo"/>
+                    <property name="price" value="9.99"/>
+                    <property name="sales" value="98"/>
+                    <property name="title" value="spring assemble"/>
+                </bean>
+                <ref bean="book5"/>
+            </list>
+        </property>
+        <property name="bookArray">
+            <array>
+                <ref bean="book4"/>
+                <ref bean="book3"/>
+            </array>
+        </property>
+        <property name="bookMap">
+            <map>
+                <entry key="1" value-ref="book2"/>
+                <entry key="2" value-ref="book"/>
+            </map>
+        </property>
+    </bean>
+    <bean id="bookShop2" class="tech.jinguo.springdemo.bean.BookShop">
+        <property name="books" ref="listBean"/>
+        <property name="bookMap" ref="mapBean"/>
+        <property name="bookArray">
+            <null/>
+        </property>
+    </bean>
+    <!--配置集合bean-->
+    <util:list id="listBean">
+        <ref bean="book3"/>
+        <ref bean="book4"/>
+        <ref bean="book5"/>
+    </util:list>
+    <!--配置map Bean-->
+    <util:map id="mapBean">
+        <entry key="1" value-ref="book3"/>
+        <entry key="2" value-ref="book3"/>
+        <entry key="3" value-ref="book3"/>
+    </util:map>
+
+    <!--以上配置都属于手动装配，即手动设置属性值，接下来可以通过自动装配-->
+    <!-- no或default 不自动装配-->
+    <!-- byName: 根据bean的属性名自动装配，以当前Bean的属性名作为id从IOC容器中寻找以实现自动装配，找不到则不装配-->
+    <!-- byType：根据bean的属性类型自动装配。找到一个则装配，找到多个则报错，找不到则不装配。-->
+    <bean id="cartItem4" class="tech.jinguo.springdemo.bean.CartItem" autowire="byName">
+        <property name="amount" value="10"/>
+        <property name="count" value="20"/>
+    </bean>
+
+    <bean id="datasource" class="com.alibaba.druid.pool.DruidDataSource">
+        <!--配置连接数据库的信息-->
+        <property name="username" value="root"/>
+        <property name="password" value="123456"/>
+        <property name="url">
+            <value>
+                <![CDATA[jdbc:mysql:///study?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai]]>
+            </value>
+        </property>
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="initialSize" value="5"/>
+        <property name="maxActive" value="10"/>
+    </bean>
+
+    <!--通过引入外部的属性文件配置数据源-->
+    <!--引用外部的属性文件-->
+    <context:property-placeholder location="classpath:druid.properties" />
+    <!--配置数据源-->
+    <bean id="datasource2" class="com.alibaba.druid.pool.DruidDataSource">
+        <!--配置连接数据库的信息-->
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="initialSize" value="${jdbc.initialSize}"/>
+        <property name="maxActive" value="${jdbc.maxActive}"/>
+    </bean>
+</beans>
