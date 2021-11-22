@@ -16,6 +16,11 @@
             <artifactId>influxdb-client-java</artifactId>
             <version>${influxdb.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.78</version>
+        </dependency>
     </dependencies>
 
 </project>
