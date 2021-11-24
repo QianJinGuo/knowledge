@@ -11,6 +11,7 @@
     <modules>
         <module>WebFlux</module>
         <module>ServletDemo</module>
+        <module>SpringDemo</module>
     </modules>
 
     <properties>
