@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--配置工厂bean-->
+    <bean id="myFactoryBean" class="tech.jinguo.springdemo.bean2.MyFactoryBean">
+    </bean>
+
+    <!--bean的作用域
+        bean的作用域通过scope属性设置
+        scope的值说明:
+           singleton: 默认值，单例  IOC容器一创建就会实例化Bean
+           prototype: 多实例的。IOC容器一创建将不再创建Bean对象，只有调用getBean方法的时候才会创建bean对象，每调用一次就会创建一次bean对象
+           request: 每次Http请求创建一个新的对象
+           session: 每次新的会话创建一个新的对象，同一个会话共享一个对象
+    -->
+    <bean id="beanScope" class="tech.jinguo.springdemo.bean2.BeanScope" scope="prototype">
+        <property name="name" value="Bean的作用域"/>
+    </bean>
+
+    <!--bean的生命周期
+        init-methods属性:设置初始化方法的方法名
+        destroy-method属性:设置销毁方法的方法名
+    -->
+    <bean id="beanLife" class="tech.jinguo.springdemo.bean2.BeanLife" init-method="init" destroy-method="destory">
+        <property name="name" value="bean的生命周期"/>
+    </bean>
+
+    <!--配置bean的后置处理器，后置处理器对IOC容器中所有的Bean都起作用-->
+    <bean id="myBeanPostProcessor" class="tech.jinguo.springdemo.bean2.MyBeanPostProcessor"/>
+</beans>
