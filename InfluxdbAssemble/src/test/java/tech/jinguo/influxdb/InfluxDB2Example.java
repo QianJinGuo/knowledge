@@ -11,6 +11,7 @@ package tech.jinguo.influxdb;
 import java.time.Instant;
 import java.util.List;
 
+import com.alibaba.fastjson.JSON;
 import com.influxdb.annotations.Column;
 import com.influxdb.annotations.Measurement;
 import com.influxdb.client.InfluxDBClient;
@@ -51,7 +52,7 @@ public class InfluxDB2Example {
         //
         Point point = Point.measurement("temperature")
                 .addTag("location", "west")
-                .addField("value", 55D)
+                .addField("value", 55d)
                 .time(Instant.now().toEpochMilli(), WritePrecision.MS);
 
         writeApi.writePoint(point);
@@ -74,15 +75,19 @@ public class InfluxDB2Example {
         //
         // Query data
         //
-        String flux = "from(bucket:\"dbtest\") |> range(start: 0)";
+        String flux = "" +
+                "from(bucket:\"dbtest\")" +
+                "|> range(start: 0)" +
+                "|> filter(fn: (r) => r[\"_measurement\"] == \"temperature\") ";
 
         QueryApi queryApi = influxDBClient.getQueryApi();
 
         List<FluxTable> tables = queryApi.query(flux);
         for (FluxTable fluxTable : tables) {
             List<FluxRecord> records = fluxTable.getRecords();
+            System.out.println();
             for (FluxRecord fluxRecord : records) {
-                System.out.println(fluxRecord.getTime() + ": " + fluxRecord.getValueByKey("_value"));
+                System.out.println(JSON.toJSONString(fluxRecord));;
             }
         }
 
