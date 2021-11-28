@@ -8,11 +8,12 @@ public class MyFactoryBean implements FactoryBean<Book> {
 
     @Override
     public Book getObject() throws Exception {
-        return new Book(8,"SpringDemo2","jinguo",8.88,888);
+        return new Book(8, "SpringDemo2", "jinguo", 8.88, 888);
     }
 
     /**
      * 设置返回的MYbean类型
+     *
      * @return
      */
     @Override
@@ -22,6 +23,7 @@ public class MyFactoryBean implements FactoryBean<Book> {
 
     /**
      * 是否单例
+     *
      * @return
      */
     @Override

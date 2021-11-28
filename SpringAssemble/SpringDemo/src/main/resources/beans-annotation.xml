@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+    <!--配置自动扫描包
+        bean-package属性 设置一个基础包，spring会自动扫描包及其子包
+        resource-pattern属性:精确制定扫描哪个子包的类 resource-pattern="dao/impl/*.class"
+    -->
+    <context:component-scan base-package="tech.jinguo.springdemo.annotation">
+        <!--子标签
+            include-fliter 用来设置只扫描哪个包下的类 需要设置父标签 use-default-filters="false"
+                如果type的值annotation，那么expression值是注解的全类名
+                如果type的值是assignable，那么expression值是接口或实现类的全限定名
+            exclude-filter  用来设置不扫描哪个包下的类
+                如果type的值annotation，那么expression值是注解的全类名
+                如果type的值是assignable，那么expression值是接口或实现类的全限定名
+                注意：不需要设置父标签 use-default-filters
+                Component注解不能排除，因为Controller,Repository,Service都包含Component
+        -->
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+<!--        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Component"/>-->
+    </context:component-scan>
 </beans>

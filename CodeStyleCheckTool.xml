@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CodeStyleChecker>
+    <!-- set the "src" directory where the source codes are stored -->
+    <SourceDir>C:\workstation\workspace\git\gitOyster\CodeStyleChecker\src</SourceDir>
+    <!-- set the files to check -->
+    <FileInclusion>
+        src/main/java/info/woody/api/intellij/plugin/csct/core/CodeStyleCheckRule.groovy
+        src/main/java/info/woody/api/intellij/plugin/csct/core/CodeStyleCheckRuleExecutor.groovy
+    </FileInclusion>
+    <!-- set the files to exclude files to check -->
+    <FileExclusion>
+        SwaggerDocumentationConfig.java
+    </FileExclusion>
+    <!-- set the file pattern to exclude files to check -->
+    <FileExclusionPattern>^.*(Controller).*$</FileExclusionPattern>
+</CodeStyleChecker>
