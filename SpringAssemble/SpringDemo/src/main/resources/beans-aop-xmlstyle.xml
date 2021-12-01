@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+    <bean id="calculator" class="tech.jinguo.springdemo.aop.xml.CalculatorImpl"/>
+    <bean id="loggingAspect" class="tech.jinguo.springdemo.aop.xml.LoggingAspect"/>
+
+    <!--aop配置-->
+    <aop:config>
+        <aop:pointcut id="pointCut" expression="execution(* tech.jinguo.springdemo.aop.xml.CalculatorImpl.*(..))"/>
+        <aop:aspect ref="loggingAspect">
+            <aop:before pointcut-ref="pointCut" method="beforeAdvise"/>
+            <aop:after pointcut-ref="pointCut" method="afterAdvise"/>
+            <aop:after-returning pointcut-ref="pointCut" returning="result" method="afterReturning"/>
+            <aop:after-throwing pointcut-ref="pointCut" throwing="e" method="afterThrowing"/>
+            <aop:around pointcut-ref="pointCut" method="around"/>
+        </aop:aspect>
+    </aop:config>
+
+</beans>
