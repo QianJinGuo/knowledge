@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+    <!--引入外部的属性文件-->
+    <context:property-placeholder location="druid2.properties"/>
+    <!--配置数据源-->
+    <bean id="datasource-tx-xml" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="initialSize" value="${jdbc.initialSize}"/>
+        <property name="maxActive" value="${jdbc.maxActive}"/>
+    </bean>
+    <!--配置jdbcTemplate-->
+    <bean id="jdbcTemplate-tx-xml" class="org.springframework.jdbc.core.JdbcTemplate">
+        <!--配置数据源属性-->
+        <property name="dataSource" ref="datasource-tx-xml"/>
+    </bean>
+    <bean id="bookShopDao-xml" class="tech.jinguo.springdemo.transaction.xml.dao.BookShopDaoImpl">
+        <property name="jdbcTemplate" ref="jdbcTemplate-tx-xml"/>
+    </bean>
+    <bean id="bookShopService-xml" class="tech.jinguo.springdemo.transaction.xml.service.BookShopServiceImpl">
+        <property name="bookShopDao" ref="bookShopDao-xml"/>
+    </bean>
+    <!--配置事务管理器-->
+    <bean id="transactionManager-xml" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!--配置数据源属性-->
+        <property name="dataSource" ref="datasource-tx-xml"/>
+    </bean>
+    <!--配置添加事务的方法-->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager-xml">
+        <!--配置添加事务的方法-->
+        <tx:attributes>
+            <!--给所有查询的方法加上事务-->
+            <tx:method name="get*" isolation="READ_COMMITTED" propagation="REQUIRED" read-only="true"/>
+            <!--给所有查询的方法加上事务-->
+            <tx:method name="find*" isolation="READ_COMMITTED" propagation="REQUIRED" read-only="true"/>
+            <!--给所有的方法添加上事务-->
+            <tx:method name="*" isolation="READ_COMMITTED"/>
+            <!--给BookShopService中的purchase方法添加事务-->
+            <tx:method name="purchase" isolation="READ_COMMITTED"/>
+        </tx:attributes>
+    </tx:advice>
+    <!--AOP配置-->
+    <aop:config>
+        <!--配置切点表达式-->
+        <aop:pointcut id="pointCut" expression="execution(* tech.jinguo.springdemo.transaction.xml.service.BookShopService.purchase(..))"/>
+        <!--将通知方法和切入点表达式关联起来-->
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pointCut"/>
+    </aop:config>
+</beans>
