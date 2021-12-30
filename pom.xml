@@ -15,5 +15,6 @@
         <module>RocketmqAssemble</module>
         <module>SpringAssemble</module>
         <module>RPCAssemble</module>
+        <module>TestModule</module>
     </modules>
 </project>
