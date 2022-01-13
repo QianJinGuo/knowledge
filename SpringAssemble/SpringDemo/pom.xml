@@ -125,19 +125,19 @@
             <version>${junit-jupiter.version}</version>
         </dependency>
         <!--junit4-->
-        <!-- https://mvnrepository.com/artifact/junit/junit -->
-        <!-- <dependency>
+        <!--https://mvnrepository.com/artifact/junit/junit-->
+         <dependency>
              <groupId>junit</groupId>
              <artifactId>junit</artifactId>
              <version>${junit.version}</version>
              <scope>test</scope>
-         </dependency>-->
-        <!-- https://mvnrepository.com/artifact/org.hamcrest/hamcrest-core -->
-        <!--  <dependency>
+         </dependency>
+          <!--https://mvnrepository.com/artifact/org.hamcrest/hamcrest-core-->
+          <dependency>
               <groupId>org.hamcrest</groupId>
               <artifactId>hamcrest-core</artifactId>
               <version>${hamcrest.version}</version>
               <scope>test</scope>
-          </dependency>-->
+          </dependency>
     </dependencies>
 </project>
