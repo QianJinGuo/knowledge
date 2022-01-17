@@ -1,0 +1,2 @@
+tech.jinguo.test.spi.MysqlRepository
+tech.jinguo.test.spi.MongoRepository
