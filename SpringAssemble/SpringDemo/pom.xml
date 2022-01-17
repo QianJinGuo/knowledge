@@ -23,9 +23,15 @@
         <log4j.version>2.17.0</log4j.version>
         <slf4j.version>1.7.32</slf4j.version>
         <junit-jupiter.version>5.5.2</junit-jupiter.version>
+        <lombok.version>1.18.22</lombok.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
         <dependency>
             <groupId>org.springframework</groupId>
