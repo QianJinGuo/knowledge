@@ -1,0 +1,50 @@
+[
+  {
+    "task_id": "task_hello",
+    "name": "Hello World Task",
+    "description": "A simple hello world demonstration task",
+    "input_schema": {
+      "name": {"type": "string", "required": false, "default": "World"}
+    },
+    "entry": "tasks/task_hello.py",
+    "requires": [],
+    "version": "1.0.0",
+    "timeout_seconds": 30
+  },
+  {
+    "task_id": "task_fibonacci",
+    "name": "Fibonacci Calculator",
+    "description": "Compute the Nth Fibonacci number",
+    "input_schema": {
+      "n": {"type": "integer", "required": true}
+    },
+    "entry": "tasks/task_fibonacci.py",
+    "requires": [],
+    "version": "1.0.0",
+    "timeout_seconds": 60
+  },
+  {
+    "task_id": "task_file_report",
+    "name": "File Report Generator",
+    "description": "List files in a directory and produce a summary report",
+    "input_schema": {
+      "directory": {"type": "string", "required": false, "default": "."}
+    },
+    "entry": "tasks/task_file_report.py",
+    "requires": [],
+    "version": "1.0.0",
+    "timeout_seconds": 30
+  },
+  {
+    "task_id": "task_slow",
+    "name": "Slow Task (timeout demo)",
+    "description": "Sleeps longer than its timeout to demonstrate timeout detection",
+    "input_schema": {
+      "sleep_seconds": {"type": "integer", "required": false, "default": 120}
+    },
+    "entry": "tasks/task_slow.py",
+    "requires": [],
+    "version": "1.0.0",
+    "timeout_seconds": 5
+  }
+]
